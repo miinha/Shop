@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<mapper namespace="buyMapper">
+<resultMap type="kh.study.shop.buy.vo.BuyVO" id="buy">
+		<id column="BUY_CODE" property="buyCode"/>
+		<result column="MEMBER_ID" property="memberId"/>
+		<result column="BUY_DATE" property="buyDate"/>
+		<result column="TOTAL_PRICE" property="totalPrice"/>
+		<result column="BUY_CNT" property="buyCnt"/>
+		<collection property="buyDetailList" resultMap="buyDetail"></collection>
+</resultMap>
+
+<resultMap type="kh.study.shop.buy.vo.BuyDetailVO" id="buyDetail">
+	  <id column="BUY_DETAIL_CODE"    property="buyDetailCode"/>
+      <result column="CATE_NAME"       property="cateName"/>
+      <result column="ATTACHED_NAME"    property="attachedName"/>
+      <result column="ITEM_NAME"       property="itemName"/>
+      <result column="ITEM_PRICE"    property="itemPrice"/>
+      <result column="BUY_AMOUNT"    property="buyAmount"/>
+      <result column="BUY_PRICE"       property="buyPrice"/>
+      <result column="BUY_CODE"       property="buyCode"/>
+</resultMap>
+
+<!-- 구매할 목록 조회  -->
+<select id="selectBuyingList" resultMap="cartMapper.cart">
+<!-- 상품대표이미지, 상품명, 가격, 수량 -->
+	SELECT ITEM_CODE
+		, (SELECT ITEM_NAME 
+			FROM SHOP_ITEM
+			WHERE ITEM_CODE = C.ITEM_CODE) AS ITEM_NAME <!-- 장바구니에 들어있는 상품명 조회하기 위해서 -->
+		, (SELECT ITEM_PRICE
+			FROM SHOP_ITEM
+			WHERE ITEM_CODE = C.ITEM_CODE) AS ITEM_PRICE <!-- 장바구니에 들어있는 상품의 상품가격 조회하기 위해서 -->
+		, CART_AMOUNT
+		, (SELECT ATTACHED_NAME
+			FROM ITEM_IMG
+			WHERE ITEM_CODE = C.ITEM_CODE
+			AND IS_MAIN = 'Y') AS ATTACHED_NAME  <!-- 장바구니에 들어있는 상품의 이미지 조회하기 위해서 -->
+		, CART_CODE
+	FROM SHOP_CART C
+	WHERE CART_CODE IN 
+	<foreach collection="cartCodeList" item="cartCode" separator="," open="(" close=")">
+		#{cartCode}
+	</foreach> 
+
+<!-- 	SELECT ITEM.ITEM_CODE
+		, ATTACHED_NAME
+		, ITEM_NAME
+		, ITEM_PRICE
+		, CART_AMOUNT
+	FROM ITEM_IMG IMG, SHOP_ITEM ITEM, SHOP_CART CART
+	WHERE IMG.ITEM_CODE = ITEM.ITEM_CODE
+	AND IS_MAIN = 'Y'
+	AND CART.ITEM_CODE = ITEM.ITEM_CODE
+	AND CART_CODE IN ('CART_001, CART_001') -->
+</select>
+
+<select id="selectNextBuyCode" resultType="String">
+	SELECT 'BUY_'||LPAD(NVL(MAX(TO_NUMBER(SUBSTR(BUY_CODE, 5))), 0) + 1, 3, 0)
+	FROM SHOP_BUY	
+</select>
+
+
+<!-- 장바구니 선택구매 -->
+<insert id="insertBuy">
+	INSERT INTO SHOP_BUY(
+	 BUY_CODE
+	, MEMBER_ID
+	, TOTAL_PRICE
+	) VALUES(
+		 #{buyCode}
+		, #{memberId}
+		, #{totalPrice}
+	)
+</insert>
+
+<!-- 선택구매 상세정보 -->
+<insert id="insertBuyDetail">
+	INSERT INTO SHOP_BUY_DETAIL(
+	BUY_DETAIL_CODE
+	, ITEM_CODE
+	, BUY_CODE
+	, BUY_AMOUNT
+	)                       <!-- buyVO.getBuyDetailList() -->
+		<foreach collection="buyDetailList" item="buyDetailVO" separator="UNION ALL" index="i">
+		SELECT #{buyCode}||'_'||LPAD(#{i} + 1, 2, 0)
+		, #{buyDetailVO.itemCode}
+		, #{buyCode}
+		, #{buyDetailVO.buyAmount}
+		FROM DUAL
+		</foreach>
+	
+</insert>
+
+<!-- CART_CODE가 'CART_00?'인 데이터 조회 -->
+<select id="getCartInfoForBuy" resultMap="cartMapper.cart">
+	SELECT ITEM_CODE, CART_AMOUNT, TOTAL_PRICE
+	FROM SHOP_CART
+	WHERE CART_CODE IN (
+	<foreach collection="cartCodeList" item="cartCode" separator=",">
+		#{cartCode}
+	</foreach>
+	)
+</select>
+
+</mapper>
+
+
+
+
+
+
+
+

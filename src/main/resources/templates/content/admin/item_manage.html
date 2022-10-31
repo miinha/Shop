@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	  layout:decorate="~{layout/admin_layout}">
+
+<div layout:fragment="content"> 
+<style>
+      .table .searchTitle{
+         background-color: #e9ecef;
+      }
+      .test td{
+         padding-top: 1px;
+         padding-bottom: 1px;
+      }
+</style>
+
+   <div class="row mb-3">
+      <div class="col">
+      <form th:action="@{/admin/itemManage}" method="post">
+         <table class="table align-middle table-bordered text-center test"><!-- table-borderless -->
+            <colgroup>
+               <col width="8%">
+               <col width="8%">
+               <col width="15%">
+               <col width="8%">
+               <col width="19%">
+               <col width="7%">
+               <col width="7%"><!-- 재고 -->
+               <col width="20%">
+               <col width="8%">
+            </colgroup>
+            <tr>
+               <td rowspan="2">
+                  <div class="row">
+                     <div class="col-12">
+                        검 색
+                     </div>
+                     <div class="col-12">
+                        조 건
+                     </div>
+                  </div>
+               </td>
+               <td class="searchTitle">카테고리</td>
+               <td>
+                  <select class="form-select" name="cateCode">
+                     	<option value="" th:selected="${paramMap['cateCode'] == null or paramMap['cateCode'] eq ''}">전체</option>
+                     	<option th:each="cate : ${cateList}" th:text="${cate.cateName}" th:value="${cate.cateCode}" th:selected="${paramMap['cateCode'] eq cate.cateCode}"></option>
+                  </select>
+               </td>
+               <td class="searchTitle">상품명</td>
+               <td colspan="2">
+                  <input class="form-control" type="text" name="itemName" id="" th:value="${paramMap['itemName']}" >
+               </td>
+               <td class="searchTitle">재고</td>
+               <td>
+                  <input class="form-control" type="text" name="itemStock" id="" th:value="${paramMap['itemStock']}" >
+               </td>
+               <td rowspan="2">
+                  <button type="submit" class="btn btn-primary" style="height: 90px;">Search</button>
+               </td>
+            </tr>
+            <tr>
+               <td class="searchTitle">등록일</td>
+               <td colspan="3">
+                  <div class="row">
+                     <div class="col-6">
+                        <input class="form-control" type="date" name="fromDate" id="" th:value="${paramMap['fromDate']}" >
+                     </div>
+                     <div class="col-6">
+                        <input class="form-control" type="date" name="toDate" id="" th:value="${paramMap['toDate']}">
+                     </div>
+                  </div>
+               </td>
+               <td class="searchTitle">상태</td>
+               <td colspan="2">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="itemStatus" id="" value="" th:checked="${paramMap['itemStatus'] == null or paramMap['itemStatus'] eq ''}">
+                    <label class="form-check-label" for="">전체</label>
+                  </div>
+                     <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="itemStatus" id="" value="ON_SALE" th:checked="${paramMap['itemStatus'] eq 'ON_SALE'}">
+                    <label class="form-check-label" for="">판매중</label>
+                  </div>
+                     <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="itemStatus" id="" value="SOLD_OUT" th:checked="${paramMap['itemStatus'] eq 'SOLD_OUT'}">
+                    <label class="form-check-label" for="">매진</label>
+                  </div>
+               </td>
+            </tr>
+         </table>
+        </form>
+      </div>
+   </div>
+   <div class="row mb-3" style="margin-top: -2rem">
+      <div class="col" style="color: red; font: 8px;">
+         <div>* 재고에 입력된 개수 이하의 재고를 가진 상품을 조회합니다.</div>
+         <div style="padding-left: 10px;">ex) 재고 입력란에 10을 입력했다면 재고가 10개 이하인 상품만 조회합니다.</div>
+      </div>
+   </div>
+   <div class="row" style="margin-top: 2rem;">
+      <div class="col" style="font: 10px;">
+         <div>총 <span th:text="${#lists.size(itemList)}"></span>개의 상품이 조회되었습니다.</div>
+      </div>
+   </div>
+
+<div class="row">
+	<div class="col">
+		<table class="table table-striped table-hover text-center align-middle">
+            <colgroup>
+               <col width="10%">
+               <col width="10%">
+               <col width="15%">
+               <col width="10%">
+               <col width="20%">
+               <col width="15%">
+               <col width="20%">
+            </colgroup>
+            <thead style="font-size: 1.1rem;"><!-- 1.1배 큰 글자가 나온다. -->
+               <tr>
+                  <td>No</td>
+                  <td>카테고리</td>
+                  <td>상품명</td>
+                  <td>가격</td>
+                  <td>재고</td>
+                  <td>등록일</td>
+                  <td>상태</td>
+               </tr>
+            </thead>
+            <tbody>
+               <tr th:each="item : ${itemList}">
+                  <td th:text="${itemStat.count}"></td>
+                  <td th:text="${item.cateInfo.cateName}"></td>
+                  <td th:text="${item.itemName}"></td>
+                  <td th:text="${item.itemPrice}"></td>
+                  <td>
+                     <div class="row g-3">
+                        <div class="col-7"  style="margin-right: -0.5rem">
+                        	<input type="text" class="form-control stockInput" th:value="${item.itemStock}">
+                        </div>            
+                        <div class="col-5">
+                           <button type="submit" class="btn btn-success" th:onclick="updateStock([[${item.itemCode}]], this);">
+                              변경
+                           </button>
+                        </div>   
+                     </div>
+                  </td>
+                  <td th:text="${item.regDate}"></td>
+                  <td>
+                     <div class="form-check form-check-inline">
+                       <input class="form-check-input" type="radio" th:name="|itemStatus_${itemStat.count}|" id="" value="" th:checked="${item.itemStatus eq 'ON_SALE'}">
+                       <label class="form-check-label" for="">판매중</label>
+                     </div>
+                     <div class="form-check form-check-inline">
+                       <input class="form-check-input" type="radio" th:name="|itemStatus_${itemStat.count}|" id="" value="" th:checked="${item.itemStatus eq 'SOLD_OUT'}">
+                       <label class="form-check-label" for="">매진</label>
+                     </div>
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+	</div>
+</div>
+
+<!-- 수량변경 클릭 후 실행되는 모달창 -->
+<!-- Modal -->
+<div class="modal fade" id="updateStockModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+<!--  <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div> -->
+      <div class="modal-body">
+      	<div class="row mb-3">
+      		<div class="col">
+		       수량을 변경했습니다
+      		</div>
+      	</div>
+      	<div class="row">
+      		<div class="col text-end">
+		        <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: 2rem; --bs-btn-font-size: 1rem;">확인</button>
+      		</div>
+      	</div>
+      </div>
+<!--       <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+      </div> -->
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/admin/item_manage.js}"></script> 
+ 	
+</div>
+
+</html>

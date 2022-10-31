@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<div sec:authorize="isAnonymous()"> 
+	<script type="text/javascript">
+		alert('로그인 실패');
+		location.href= '/item/list?isLoginFail=true'; 
+		//로그인 모달창을 띄운다.
+	</script>
+</div>
+
+<div sec:authorize="isAuthenticated()"> 
+	 <div sec:authorize="hasRole('ROLE_MEMBER')">
+		<script type="text/javascript">
+			alert('로그인 성공');
+			location.href= '/item/list';
+		</script>
+	</div>
+	
+	<div sec:authorize="hasRole('ROLE_ADMIN')">
+		<script type="text/javascript">
+			alert('관리자 로그인 성공');
+			location.href= '/admin/regItem';
+		</script>
+	</div>
+</div>
+
+
+</body>
+</html>

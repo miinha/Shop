@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	  layout:decorate="~{layout/admin_layout}">
+
+<th:block layout:fragment="css">
+	<link rel="stylesheet" th:href="@{}">
+</th:block>
+
+<div layout:fragment="content"> 
+<div class="accordion" id="accordionPanelsStayOpenExample">
+  <div class="accordion-item" th:each=" buyInfo : ${buyList}">
+    <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" th:data-bs-target="|#panelsStayOpen-collapseOne${buyInfoStat.count}|" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+         <span th:text="${#lists.size(buyList) - buyInfoStat.index}" style="width: 2rem; display: inline-block; font-size: 1.2rem; font-weight: bold; font-style: italic;"></span>|
+         <span style="margin-left: 2rem;">
+         <span style="font-weight: bold; font-size: 1.1rem;"> [[${buyInfo.buyDate}]]</span>
+         에 총 
+         <span style="font-weight: bold; font-size: 1.1rem;"> [[${buyInfo.buyCnt}]]</span>
+         건의 주문으로 
+         <span style="font-weight: bold; font-size: 1.1rem;"> [[${#numbers.formatCurrency(buyInfo.totalPrice)}]]</span>
+         원을 구매했습니다.
+         </span>
+      </button>
+    </h2>
+    <div th:id="|panelsStayOpen-collapseOne${buyInfoStat.count}|" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingOne">
+      <div class="accordion-body">
+      <div class="row">
+      <div class="col">
+      	<table class="table table-striped table-hover text-center align-middle">
+      		 <colgroup>
+		       <col width="8%">
+		       <col width="45%">
+		       <col width="10%">
+		       <col width="*">
+		       <col width="15%">
+		    </colgroup>
+		    <thead>
+      		<tr>
+      			<th>No</th>
+      			<th>상품정보</th>
+      			<th>가격</th>
+      			<th>수량</th>
+      			<th>총가격</th>
+      		</tr>
+      		</thead>
+      		<tbody>
+	      		<tr th:each="buyDetail : ${buyInfo.buyDetailList}">
+	      			<td th:text="${buyDetailStat.count}"></td>
+	      			<td>
+	      				 <img th:src="|@{/images/}${buyDetail.attachedName}|" width="60px;">
+	      				 [<span th:text="${buyDetail.cateName}"></span>]
+	      				 [[${buyDetail.itemName}]]
+	      			</td>
+	      			<td th:text="${#numbers.formatCurrency(buyDetail.itemPrice)}"></td>
+	      			<td th:text="${buyDetail.buyAmount}"></td>
+	      			<td th:text="${#numbers.formatCurrency(buyDetail.buyPrice)}"></td>
+	      		</tr>
+      		</tbody>
+      	</table>
+      </div>
+    </div>
+  </div>
+ </div>
+</div>
+  <!-- <div class="accordion-item">
+    <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
+        Accordion Item #2
+      </button>
+    </h2>
+    <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
+      <div class="accordion-body">
+        <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+      </div>
+    </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false" aria-controls="panelsStayOpen-collapseThree">
+        Accordion Item #3
+      </button>
+    </h2>
+    <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
+      <div class="accordion-body">
+        <strong>This is the third item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+      </div>
+    </div>
+  </div> -->
+</div>
+</div>
+
+</html>

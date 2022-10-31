@@ -1,0 +1,17 @@
+@charset "UTF-8";
+
+@font-face {
+    font-family: 'NotoSerifKR';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NotoSerifKR.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body{
+	font-family: 'NotoSerifKR';
+}
+
+a{
+	text-decoration: none;
+	color: black;
+}
