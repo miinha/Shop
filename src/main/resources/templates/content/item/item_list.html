@@ -27,10 +27,13 @@
 	</style>
 	
 	<div class="banner">
-		<th:block th:if="${cookie_itemName != null}">
+		<th:block th:if="${cookie_imgName != null}">
 			<span>오늘 본 상품</span>
-			<div th:text="${cookie_itemName}"></div>
+		<div th:each=" cookie : ${cookie_imgName}">
+			<img th:src="|@{/images/}${cookie}|" width="100%;">
+		</div>
 		</th:block>
+	
 	</div>
 	
 <!-- 	<ul class="no-stop">
